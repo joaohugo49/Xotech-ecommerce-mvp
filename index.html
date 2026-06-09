@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Xotech Ltda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* 
+   RESET & VARIÁVEIS
+*/
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --amarelo:        #fff159;
+  --amarelo-escuro: #ffe600;
+  --azul-nav:       #1a1a2e;
+  --azul-card:      #16213e;
+  --azul-painel:    #0f3460;
+  --accent:         #e94560;
+  --verde:          #00c864;
+  --texto:          #f0f0f0;
+  --texto-muted:    #9aa0b0;
+  --borda:          rgba(255,255,255,0.08);
+  --sombra:         0 4px 24px rgba(0,0,0,0.45);
+  --radius:         12px;
+  --font:           'Sora', sans-serif;
+  --mono:           'IBM Plex Mono', monospace;
+  --transition:     0.22s cubic-bezier(0.4,0,0.2,1);
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: #0d1117; color: var(--texto); min-height: 100vh; }
+
+/* 
+   NAV BAR
+*/
+#navbar {
+  position: sticky; top: 0; z-index: 900;
+  background: var(--amarelo);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 60px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+.nav-logo { font-size: 1.35rem; font-weight: 700; color: var(--azul-nav); letter-spacing: -0.5px; }
+.nav-logo span { color: var(--accent); }
+.nav-actions { display: flex; align-items: center; gap: 14px; }
+#sessao-label {
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--azul-nav); background: rgba(0,0,0,0.1);
+  padding: 4px 10px; border-radius: 20px;
+}
+.badge-role {
+  font-size: 0.68rem; font-weight: 700;
+  padding: 2px 7px; border-radius: 20px; margin-left: 5px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.badge-admin   { background: var(--accent); color: #fff; }
+.badge-cliente { background: var(--azul-painel); color: var(--amarelo); }
+
+.btn-nav {
+  font-family: var(--font); font-size: 0.82rem; font-weight: 600;
+  border: none; cursor: pointer; border-radius: 8px;
+  padding: 7px 15px; transition: var(--transition);
+  background: var(--azul-nav); color: var(--amarelo);
+}
+.btn-nav:hover { background: #2a2a4a; }
+.btn-nav.danger { background: var(--accent); color: #fff; }
+.btn-nav.danger:hover { background: #c93350; }
+#btn-carrinho { position: relative; background: var(--azul-nav); color: var(--amarelo); }
+#cart-count {
+  position: absolute; top: -6px; right: -6px;
+  background: var(--accent); color: #fff;
+  font-size: 0.65rem; font-weight: 700;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/*  
+   LAYOUT PRINCIPAL
+*/
+#main-content { max-width: 1280px; margin: 0 auto; padding: 30px 20px; }
+
+/*  
+   CATÁLOGO
+*/
+#catalogo-section h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: var(--amarelo); }
+#grid-produtos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+.card-produto {
+  background: var(--azul-card); border: 1px solid var(--borda);
+  border-radius: var(--radius); padding: 22px;
+  transition: var(--transition); display: flex; flex-direction: column; gap: 12px;
+  animation: fadeIn 0.4s ease both;
+}
+.card-produto:hover { border-color: var(--amarelo); transform: translateY(-3px); box-shadow: var(--sombra); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-nome  { font-size: 1rem; font-weight: 600; line-height: 1.4; color: var(--texto); }
+.card-desc  { font-size: 0.82rem; color: var(--texto-muted); line-height: 1.6; flex: 1; }
+.card-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.card-preco  { font-size: 1.3rem; font-weight: 700; color: var(--amarelo); font-variant-numeric: tabular-nums; }
+.card-estoque { font-size: 0.72rem; color: var(--texto-muted); font-family: var(--mono); }
+.card-acoes  { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn-comprar, .btn-editar, .btn-excluir {
+  font-family: var(--font); font-size: 0.78rem; font-weight: 600;
+  border: none; cursor: pointer; border-radius: 8px;
+  padding: 8px 14px; transition: var(--transition);
+}
+.btn-comprar { background: var(--amarelo); color: var(--azul-nav); flex: 1; }
+.btn-comprar:hover { background: var(--amarelo-escuro); }
+.btn-editar { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.btn-editar:hover { background: var(--accent); color: #fff; }
+.btn-excluir { background: transparent; color: #c93350; border: 1px solid rgba(233,69,96,0.35); padding: 8px 10px; }
+.btn-excluir:hover { background: rgba(233,69,96,0.15); border-color: var(--accent); }
+
+/*  
+   OVERLAYS / PAINÉIS LATERAIS
+*/
+.overlay {
+  position: fixed; inset: 0; z-index: 950;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none; transition: opacity var(--transition);
+}
+.overlay.ativo { opacity: 1; pointer-events: all; }
+
+.painel-lateral {
+  position: fixed; top: 0; right: -480px; z-index: 960;
+  width: 440px; max-width: 96vw; height: 100vh;
+  background: var(--azul-card); border-left: 1px solid var(--borda);
+  display: flex; flex-direction: column;
+  transition: right var(--transition);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.5);
+}
+.painel-lateral.ativo { right: 0; }
+
+.painel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 22px; border-bottom: 1px solid var(--borda);
+  flex-shrink: 0;
+}
+.painel-header h3 { font-size: 1rem; font-weight: 700; color: var(--amarelo); }
+.btn-fechar {
+  background: none; border: none; cursor: pointer;
+  font-size: 1.4rem; color: var(--texto-muted);
+  transition: color var(--transition); line-height: 1;
+}
+.btn-fechar:hover { color: var(--accent); }
+.painel-corpo { flex: 1; overflow-y: auto; padding: 22px; }
+
+/*  
+   FORMULÁRIOS
+*/
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.form-group label {
+  font-size: 0.78rem; font-weight: 600; color: var(--texto-muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.form-group input, .form-group textarea {
+  font-family: var(--font); font-size: 0.9rem;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--borda);
+  border-radius: 8px; padding: 10px 13px; color: var(--texto); outline: none;
+  transition: border-color var(--transition);
+}
+.form-group input:focus, .form-group textarea:focus { border-color: var(--amarelo); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+
+.btn-primario {
+  font-family: var(--font); font-weight: 700; font-size: 0.9rem;
+  width: 100%; padding: 12px; border: none; border-radius: 8px;
+  background: var(--amarelo); color: var(--azul-nav);
+  cursor: pointer; transition: var(--transition); margin-top: 4px;
+}
+.btn-primario:hover { background: var(--amarelo-escuro); }
+.btn-secundario {
+  font-family: var(--font); font-weight: 600; font-size: 0.88rem;
+  flex: 1; padding: 11px; border-radius: 8px; cursor: pointer;
+  background: transparent; border: 1px solid var(--borda); color: var(--texto);
+  transition: var(--transition);
+}
+.btn-secundario:hover { border-color: var(--amarelo); color: var(--amarelo); }
+
+.msg-painel {
+  font-size: 0.82rem; padding: 10px 13px; border-radius: 8px;
+  margin-top: 10px; display: none;
+}
+.msg-painel.sucesso { background: rgba(0,200,100,0.15); color: var(--verde); display: block; }
+.msg-painel.erro    { background: rgba(233,69,96,0.15);  color: var(--accent); display: block; }
+
+.divisor { border: none; border-top: 1px solid var(--borda); margin: 20px 0; }
+.link-toggle {
+  font-size: 0.82rem; color: var(--amarelo); cursor: pointer;
+  text-decoration: underline; text-align: center; display: block; margin-top: 10px;
+}
+
+/*
+   PAINEL GERENTE - abas
+*/
+.abas-gerente {
+  display: flex; gap: 0; margin-bottom: 20px;
+  border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--borda);
+}
+.aba-btn {
+  font-family: var(--font); font-size: 0.78rem; font-weight: 600;
+  flex: 1; padding: 9px 6px; border: none; cursor: pointer;
+  background: rgba(255,255,255,0.04); color: var(--texto-muted);
+  transition: var(--transition); text-align: center;
+}
+.aba-btn:not(:last-child) { border-right: 1px solid var(--borda); }
+.aba-btn.ativa { background: var(--amarelo); color: var(--azul-nav); }
+.aba-btn:hover:not(.ativa) { background: rgba(255,255,255,0.08); color: var(--texto); }
+
+.aba-conteudo { display: none; }
+.aba-conteudo.ativa { display: block; }
+
+/*
+   TABELA DE AUDITORIA (RF02)
+*/
+.audit-header {
+  font-size: 0.72rem; font-weight: 700; color: var(--texto-muted);
+  text-transform: uppercase; letter-spacing: 0.6px;
+  margin-bottom: 12px;
+}
+.audit-loading { font-size: 0.82rem; color: var(--texto-muted); padding: 12px 0; }
+
+.tabela-auditoria { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.tabela-auditoria thead tr {
+  border-bottom: 2px solid var(--borda);
+}
+.tabela-auditoria th {
+  font-size: 0.68rem; font-weight: 700; color: var(--texto-muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 8px 6px; text-align: left;
+}
+.tabela-auditoria td {
+  padding: 10px 6px; border-bottom: 1px solid var(--borda);
+  color: var(--texto); vertical-align: top;
+  font-family: var(--mono); font-size: 0.74rem;
+}
+.tabela-auditoria tbody tr:hover { background: rgba(255,255,255,0.03); }
+.td-metodo {
+  display: inline-block; padding: 2px 7px; border-radius: 20px;
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+}
+.metodo-pix    { background: rgba(0,200,100,0.15); color: var(--verde); }
+.metodo-cartao { background: rgba(255,241,89,0.12); color: var(--amarelo); }
+.metodo-boleto { background: rgba(255,255,255,0.08); color: var(--texto-muted); }
+.td-fiscal {
+  font-size: 0.6rem; color: var(--texto-muted);
+  word-break: break-all; max-width: 100px;
+}
+.btn-reload-audit {
+  font-family: var(--font); font-size: 0.75rem; font-weight: 600;
+  background: transparent; border: 1px solid var(--borda);
+  color: var(--texto-muted); border-radius: 6px; padding: 5px 10px;
+  cursor: pointer; transition: var(--transition); margin-left: 8px;
+}
+.btn-reload-audit:hover { border-color: var(--amarelo); color: var(--amarelo); }
+
+/*
+   CARRINHO
+*/
+#lista-carrinho { display: flex; flex-direction: column; gap: 12px; }
+.item-carrinho {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--borda);
+  border-radius: 10px; padding: 12px 14px;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
+}
+.item-carrinho-info { flex: 1; }
+.item-nome { font-size: 0.88rem; font-weight: 600; }
+.item-qtd-ctrl { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.btn-qtd {
+  background: var(--borda); border: none; cursor: pointer;
+  color: var(--texto); width: 26px; height: 26px; border-radius: 6px;
+  font-size: 1rem; transition: var(--transition);
+}
+.btn-qtd:hover { background: var(--amarelo); color: var(--azul-nav); }
+.qtd-val { font-family: var(--mono); font-size: 0.9rem; min-width: 20px; text-align: center; }
+.item-preco { font-family: var(--mono); font-size: 0.9rem; color: var(--amarelo); white-space: nowrap; }
+.btn-remover-item {
+  background: none; border: none; cursor: pointer;
+  color: var(--texto-muted); font-size: 1.1rem; transition: color var(--transition);
+}
+.btn-remover-item:hover { color: var(--accent); }
+#carrinho-vazio { text-align: center; padding: 40px 20px; color: var(--texto-muted); font-size: 0.9rem; }
+.resumo-carrinho {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--borda);
+  border-radius: 10px; padding: 16px; margin-top: 16px;
+}
+.resumo-linha { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 8px; color: var(--texto-muted); }
+.resumo-total { display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 700; color: var(--amarelo); padding-top: 8px; border-top: 1px solid var(--borda); }
+.select-pagamento {
+  font-family: var(--font); font-size: 0.88rem;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--borda);
+  border-radius: 8px; padding: 10px 13px; color: var(--texto);
+  width: 100%; margin: 12px 0 0; outline: none;
+  transition: border-color var(--transition); cursor: pointer;
+}
+.select-pagamento:focus { border-color: var(--amarelo); }
+.select-pagamento option { background: var(--azul-card); }
+
+.confirmacao-box {
+  background: rgba(0,200,100,0.08); border: 1px solid rgba(0,200,100,0.25);
+  border-radius: 10px; padding: 18px;
+  font-family: var(--mono); font-size: 0.78rem;
+  line-height: 1.8; color: #a0e0c0;
+  margin-top: 14px; display: none; white-space: pre-wrap;
+}
+.confirmacao-box.visivel { display: block; }
+.conf-header { font-size: 0.85rem; font-weight: 500; color: var(--verde); margin-bottom: 6px; }
+
+/*  
+   MODAL: CRIAR / EDITAR PRODUTO
+*/
+#modal-produto {
+  position: fixed; inset: 0; z-index: 980;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+  opacity: 0; pointer-events: none; transition: opacity var(--transition);
+}
+#modal-produto.ativo { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: var(--azul-card); border: 1px solid var(--borda);
+  border-radius: 16px; width: 460px; max-width: 95vw;
+  padding: 28px; box-shadow: var(--sombra); animation: slideUp 0.3s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+.modal-titulo { font-size: 1.1rem; font-weight: 700; color: var(--amarelo); margin-bottom: 20px; }
+.modal-acoes  { display: flex; gap: 10px; margin-top: 6px; }
+
+/*  
+   RESPONSIVO
+*/
+@media (max-width: 600px) {
+  #navbar { padding: 0 14px; }
+  .nav-logo { font-size: 1.1rem; }
+  .painel-lateral { width: 100vw; }
+  .modal-box { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!--  
+     NAV BAR
+       -->
+<nav id="navbar">
+  <div class="nav-logo">Xo<span>Tech</span></div>
+  <div class="nav-actions">
+    <span id="sessao-label">Olá, Visitante</span>
+    <button class="btn-nav" id="btn-login-nav" onclick="abrirLogin()">Entrar</button>
+    <button class="btn-nav danger" id="btn-logout-nav" style="display:none" onclick="logout()">Sair</button>
+    <button class="btn-nav" id="btn-gerente-nav" style="display:none" onclick="abrirGerente()">Gerente</button>
+    <button class="btn-nav" id="btn-carrinho" onclick="abrirCarrinho()">
+      Carrinho
+      <span id="cart-count" style="display:none">0</span>
+    </button>
+  </div>
+</nav>
+
+<!--  
+     CATÁLOGO
+       -->
+<div id="main-content">
+  <section id="catalogo-section">
+    <h2>Catálogo de Eletrônicos</h2>
+    <div id="grid-produtos"></div>
+  </section>
+</div>
+
+<!--  
+     OVERLAY
+       -->
+<div class="overlay" id="overlay" onclick="fecharTudo()"></div>
+
+<!--  
+     PAINEL: LOGIN / REGISTRO
+       -->
+<aside class="painel-lateral" id="painel-login">
+  <div class="painel-header">
+    <h3 id="titulo-form-auth">Acesse sua conta</h3>
+    <button class="btn-fechar" onclick="fecharTudo()">&#x2715;</button>
+  </div>
+  <div class="painel-corpo">
+    <div id="form-login">
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="login-email" placeholder="seu@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="login-senha" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter') fazerLogin()" />
+      </div>
+      <button class="btn-primario" onclick="fazerLogin()">Entrar</button>
+      <div id="msg-login" class="msg-painel"></div>
+      <hr class="divisor" />
+      <span class="link-toggle" onclick="alternarFormAuth()">Não tem conta? Cadastre-se</span>
+    </div>
+    <div id="form-registro" style="display:none">
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" id="reg-nome" placeholder="Seu nome completo" />
+      </div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="reg-email" placeholder="seu@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="reg-senha" placeholder="••••••••" />
+      </div>
+      <button class="btn-primario" onclick="registrar()">Criar conta</button>
+      <div id="msg-registro" class="msg-painel"></div>
+      <hr class="divisor" />
+      <span class="link-toggle" onclick="alternarFormAuth()">Já tenho conta</span>
+    </div>
+  </div>
+</aside>
+
+<!--  
+     PAINEL: GERENTE (Criar produto + Auditoria RF02)
+       -->
+<aside class="painel-lateral" id="painel-gerente">
+  <div class="painel-header">
+    <h3>Painel do Gerente</h3>
+    <button class="btn-fechar" onclick="fecharTudo()">&#x2715;</button>
+  </div>
+  <div class="painel-corpo">
+    <div class="abas-gerente">
+      <button class="aba-btn ativa" id="aba-btn-novo"    onclick="trocarAba('novo')">Novo Produto</button>
+      <button class="aba-btn"       id="aba-btn-auditoria" onclick="trocarAba('auditoria')">Pedidos</button>
+    </div>
+
+    <!-- ABA: CRIAR PRODUTO -->
+    <div class="aba-conteudo ativa" id="aba-novo">
+      <div class="form-group">
+        <label>Nome do Produto</label>
+        <input type="text" id="novo-nome" placeholder="Ex.: Smartphone XYZ" />
+      </div>
+      <div class="form-group">
+        <label>Preco (R$)</label>
+        <input type="number" id="novo-preco" step="0.01" min="0" placeholder="0,00" />
+      </div>
+      <div class="form-group">
+        <label>Descricao</label>
+        <textarea id="novo-descricao" placeholder="Características do produto..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Estoque</label>
+        <input type="number" id="novo-estoque" min="0" placeholder="0" />
+      </div>
+      <div id="msg-novo" class="msg-painel"></div>
+      <button class="btn-primario" onclick="criarProduto()">Criar Novo Produto</button>
+    </div>
+
+    <!-- ABA: AUDITORIA -->
+    <div class="aba-conteudo" id="aba-auditoria">
+      <div style="display:flex;align-items:center;margin-bottom:14px;">
+        <span class="audit-header" style="margin-bottom:0">Histórico Geral de Pedidos</span>
+        <button class="btn-reload-audit" onclick="carregarAuditoria()">Atualizar</button>
+      </div>
+      <div id="audit-corpo">
+        <div class="audit-loading">Carregando pedidos...</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!--  
+     PAINEL: CARRINHO
+       -->
+<aside class="painel-lateral" id="painel-carrinho">
+  <div class="painel-header">
+    <h3>Meu Carrinho</h3>
+    <button class="btn-fechar" onclick="fecharTudo()">&#x2715;</button>
+  </div>
+  <div class="painel-corpo">
+    <div id="carrinho-vazio">Nenhum item adicionado.</div>
+    <div id="lista-carrinho"></div>
+    <div id="resumo-carrinho-box" style="display:none">
+      <div class="resumo-carrinho">
+        <div class="resumo-linha"><span>Subtotal</span><span id="subtotal-val">R$ 0,00</span></div>
+        <div class="resumo-total"><span>Total</span><span id="total-val">R$ 0,00</span></div>
+      </div>
+      <select class="select-pagamento" id="metodo-pagamento">
+        <option value="">Selecione o pagamento</option>
+        <option value="pix">PIX (5% de desconto)</option>
+        <option value="cartao">Cartão de Crédito</option>
+        <option value="boleto">Boleto Bancário</option>
+      </select>
+      <button class="btn-primario" onclick="finalizarPedido()" style="margin-top:12px">Finalizar Pedido</button>
+      <div id="msg-pedido" class="msg-painel"></div>
+      <div id="confirmacao-box" class="confirmacao-box">
+        <div class="conf-header">COMPRA CONFIRMADA</div>
+        <div id="confirmacao-texto"></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!--  
+     MODAL: CRIAR / EDITAR PRODUTO
+       -->
+<div id="modal-produto">
+  <div class="modal-box">
+    <div class="modal-titulo" id="modal-titulo-texto">Editar Produto</div>
+    <input type="hidden" id="edit-id" value="" />
+    <div class="form-group">
+      <label>Nome do Produto</label>
+      <input type="text" id="edit-nome" />
+    </div>
+    <div class="form-group">
+      <label>Preco (R$)</label>
+      <input type="number" id="edit-preco" step="0.01" min="0" />
+    </div>
+    <div class="form-group">
+      <label>Descricao</label>
+      <textarea id="edit-descricao"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Estoque</label>
+      <input type="number" id="edit-estoque" min="0" />
+    </div>
+    <div id="msg-editar" class="msg-painel"></div>
+    <div class="modal-acoes">
+      <button class="btn-secundario" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-primario" style="flex:1" onclick="salvarEdicao()">Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<!--  
+  SCRIPT
+-->
+<script>
+const API = 'http://localhost:3000';
+
+// Estado Global
+let sessao   = null;   // { id, nome, role }
+let carrinho = [];     // [{ produto, quantidade }]
+let produtos = [];     // cache do catálogo
+
+// Utilitários
+const fmt = v => parseFloat(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+function mostrarMsg(id, texto, tipo) {
+  const el = document.getElementById(id);
+  el.className = `msg-painel ${tipo}`;
+  el.textContent = texto;
+  el.style.display = 'block';
+}
+function limparMsg(id) {
+  const el = document.getElementById(id);
+  el.style.display = 'none';
+  el.textContent = '';
+}
+
+// ── Painéis / Overlays ───────────────────────────────────────
+function abrirPainel(id) {
+  document.getElementById('overlay').classList.add('ativo');
+  document.getElementById(id).classList.add('ativo');
+}
+function fecharTudo() {
+  document.getElementById('overlay').classList.remove('ativo');
+  document.querySelectorAll('.painel-lateral').forEach(p => p.classList.remove('ativo'));
+  fecharModal();
+}
+function fecharModal() {
+  document.getElementById('modal-produto').classList.remove('ativo');
+  limparMsg('msg-editar');
+}
+function abrirLogin()    { abrirPainel('painel-login'); }
+function abrirCarrinho() { renderCarrinho(); abrirPainel('painel-carrinho'); }
+function abrirGerente()  {
+  trocarAba('novo');
+  abrirPainel('painel-gerente');
+}
+
+function trocarAba(nome) {
+  document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('ativa'));
+  document.querySelectorAll('.aba-conteudo').forEach(c => c.classList.remove('ativa'));
+  document.getElementById('aba-btn-' + nome).classList.add('ativa');
+  document.getElementById('aba-' + nome).classList.add('ativa');
+  if (nome === 'auditoria') carregarAuditoria();
+}
+
+function alternarFormAuth() {
+  const fl = document.getElementById('form-login');
+  const fr = document.getElementById('form-registro');
+  const titulo = document.getElementById('titulo-form-auth');
+  if (fl.style.display === 'none') {
+    fl.style.display = 'block'; fr.style.display = 'none';
+    titulo.textContent = 'Acesse sua conta';
+  } else {
+    fl.style.display = 'none'; fr.style.display = 'block';
+    titulo.textContent = 'Criar conta';
+  }
+}
+
+// Sessão / Navbar
+function atualizarNavbar() {
+  const label     = document.getElementById('sessao-label');
+  const btnLogin  = document.getElementById('btn-login-nav');
+  const btnLogout = document.getElementById('btn-logout-nav');
+  const btnGer    = document.getElementById('btn-gerente-nav');
+
+  if (sessao) {
+    const badgeClass = sessao.role === 'admin' ? 'badge-admin' : 'badge-cliente';
+    const badgeText  = sessao.role === 'admin' ? 'ADMIN' : 'CLIENTE';
+    label.innerHTML = `Olá, ${sessao.nome} <span class="badge-role ${badgeClass}">${badgeText}</span>`;
+    btnLogin.style.display  = 'none';
+    btnLogout.style.display = 'inline-flex';
+    btnGer.style.display    = sessao.role === 'admin' ? 'inline-flex' : 'none';
+  } else {
+    label.textContent = 'Olá, Visitante';
+    btnLogin.style.display  = 'inline-flex';
+    btnLogout.style.display = 'none';
+    btnGer.style.display    = 'none';
+  }
+}
+
+function logout() {
+  sessao = null;
+  carrinho = [];
+  atualizarNavbar();
+  renderCatalogo();
+  atualizarBadgeCarrinho();
+}
+
+// Auth
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  limparMsg('msg-login');
+  if (!email || !senha) { mostrarMsg('msg-login', 'Preencha e-mail e senha.', 'erro'); return; }
+
+  try {
+    const res  = await fetch(`${API}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, senha: String(senha) }),
+    });
+    const data = await res.json();
+    if (!res.ok) { mostrarMsg('msg-login', data.erro, 'erro'); return; }
+
+    sessao = { id: data.id, nome: data.nome, role: data.role };
+    atualizarNavbar();
+    renderCatalogo();
+    fecharTudo();
+  } catch {
+    mostrarMsg('msg-login', 'Falha de conexão com o servidor.', 'erro');
+  }
+}
+
+async function registrar() {
+  const nome  = document.getElementById('reg-nome').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const senha = document.getElementById('reg-senha').value;
+  limparMsg('msg-registro');
+  if (!nome || !email || !senha) { mostrarMsg('msg-registro', 'Todos os campos são obrigatórios.', 'erro'); return; }
+
+  try {
+    const res  = await fetch(`${API}/registrar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, email, senha }),
+    });
+    const data = await res.json();
+    if (!res.ok) { mostrarMsg('msg-registro', data.erro, 'erro'); return; }
+    mostrarMsg('msg-registro', 'Conta criada! Faça login.', 'sucesso');
+    setTimeout(alternarFormAuth, 1500);
+  } catch {
+    mostrarMsg('msg-registro', 'Falha de conexão com o servidor.', 'erro');
+  }
+}
+
+// Catálogo
+async function carregarProdutos() {
+  try {
+    const res = await fetch(`${API}/produtos`);
+    produtos = await res.json();
+    renderCatalogo();
+  } catch {
+    document.getElementById('grid-produtos').innerHTML =
+      '<p style="color:var(--accent)">Servidor offline. Inicie o server.js.</p>';
+  }
+}
+
+function renderCatalogo() {
+  const grid    = document.getElementById('grid-produtos');
+  const isAdmin = sessao?.role === 'admin';
+
+  if (!produtos.length) { grid.innerHTML = '<p>Nenhum produto encontrado.</p>'; return; }
+
+  grid.innerHTML = produtos.map(p => `
+    <div class="card-produto">
+      <div class="card-nome">${p.nome}</div>
+      <div class="card-desc">${p.descricao ?? ''}</div>
+      <div class="card-footer">
+        <div>
+          <div class="card-preco">${fmt(p.preco)}</div>
+          <div class="card-estoque">Estoque: ${p.estoque} un.</div>
+        </div>
+      </div>
+      <div class="card-acoes">
+        <button class="btn-comprar" onclick="adicionarAoCarrinho(${p.id})">Adicionar ao Carrinho</button>
+        <button class="btn-editar"  style="display:${isAdmin ? 'inline-flex' : 'none'}"
+                onclick="abrirEdicao(${p.id})">Editar (PUT)</button>
+        <button class="btn-excluir" style="display:${isAdmin ? 'inline-flex' : 'none'}"
+                onclick="excluirProduto(${p.id})" title="Excluir produto">&#x1F5D1;</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Criar Produto (ADMIN)
+async function criarProduto() {
+  limparMsg('msg-novo');
+  const nome     = document.getElementById('novo-nome').value.trim();
+  const preco    = parseFloat(document.getElementById('novo-preco').value);
+  const descricao= document.getElementById('novo-descricao').value.trim();
+  const estoque  = parseInt(document.getElementById('novo-estoque').value, 10);
+
+  if (!nome || isNaN(preco) || isNaN(estoque)) {
+    mostrarMsg('msg-novo', 'Preencha nome, preço e estoque corretamente.', 'erro'); return;
+  }
+
+  try {
+    const res  = await fetch(`${API}/produtos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, preco, descricao, estoque, id_usuario: sessao.id }),
+    });
+    const data = await res.json();
+    if (!res.ok) { mostrarMsg('msg-novo', data.erro, 'erro'); return; }
+
+    mostrarMsg('msg-novo', 'Produto criado com sucesso.', 'sucesso');
+    document.getElementById('novo-nome').value      = '';
+    document.getElementById('novo-preco').value     = '';
+    document.getElementById('novo-descricao').value = '';
+    document.getElementById('novo-estoque').value   = '';
+    await carregarProdutos();
+  } catch {
+    mostrarMsg('msg-novo', 'Falha de conexão com o servidor.', 'erro');
+  }
+}
+
+// Excluir Produto (ADMIN)
+async function excluirProduto(idProduto) {
+  if (!sessao || sessao.role !== 'admin') return;
+  const confirmar = window.confirm('Confirma a exclusão permanente deste produto?');
+  if (!confirmar) return;
+
+  try {
+    const res = await fetch(`${API}/produtos/${idProduto}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_usuario: sessao.id }),
+    });
+    const data = await res.json();
+    if (!res.ok) { alert(data.erro); return; }
+    await carregarProdutos();
+  } catch {
+    alert('Falha de conexão com o servidor.');
+  }
+}
+
+// Editar Produto (ADMIN)
+function abrirEdicao(idProduto) {
+  if (!sessao || sessao.role !== 'admin') return;
+  const p = produtos.find(pr => pr.id === idProduto);
+  if (!p) return;
+  document.getElementById('modal-titulo-texto').textContent = 'Editar Produto';
+  document.getElementById('edit-id').value        = p.id;
+  document.getElementById('edit-nome').value      = p.nome;
+  document.getElementById('edit-preco').value     = p.preco;
+  document.getElementById('edit-descricao').value = p.descricao ?? '';
+  document.getElementById('edit-estoque').value   = p.estoque;
+  limparMsg('msg-editar');
+  document.getElementById('modal-produto').classList.add('ativo');
+}
+
+async function salvarEdicao() {
+  limparMsg('msg-editar');
+  const id        = document.getElementById('edit-id').value;
+  const nome      = document.getElementById('edit-nome').value.trim();
+  const preco     = parseFloat(document.getElementById('edit-preco').value);
+  const descricao = document.getElementById('edit-descricao').value.trim();
+  const estoque   = parseInt(document.getElementById('edit-estoque').value, 10);
+
+  if (!nome || isNaN(preco) || isNaN(estoque)) {
+    mostrarMsg('msg-editar', 'Preencha todos os campos corretamente.', 'erro'); return;
+  }
+
+  try {
+    const res  = await fetch(`${API}/produtos/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, preco, descricao, estoque, id_usuario: sessao.id }),
+    });
+    const data = await res.json();
+    if (!res.ok) { mostrarMsg('msg-editar', data.erro, 'erro'); return; }
+    fecharModal();
+    await carregarProdutos();
+  } catch {
+    mostrarMsg('msg-editar', 'Falha de conexão com o servidor.', 'erro');
+  }
+}
+
+// Auditoria de Pedidos RF02 (ADMIN)
+async function carregarAuditoria() {
+  if (!sessao || sessao.role !== 'admin') return;
+  const corpo = document.getElementById('audit-corpo');
+  corpo.innerHTML = '<div class="audit-loading">Consultando banco de dados...</div>';
+
+  try {
+    const res  = await fetch(`${API}/pedidos?id_usuario=${sessao.id}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      corpo.innerHTML = `<div class="audit-loading" style="color:var(--accent)">${data.erro}</div>`;
+      return;
+    }
+
+    if (!data.length) {
+      corpo.innerHTML = '<div class="audit-loading">Nenhum pedido registrado ainda.</div>';
+      return;
+    }
+
+    const metodoCss = { pix: 'metodo-pix', cartao: 'metodo-cartao', boleto: 'metodo-boleto' };
+    const rows = data.map(p => `
+      <tr>
+        <td>#${p.pedido_id}</td>
+        <td style="font-family:var(--font);color:var(--texto)">${p.cliente}</td>
+        <td style="color:var(--amarelo)">${fmt(p.total)}</td>
+        <td><span class="td-metodo ${metodoCss[p.metodo_pagamento] ?? ''}">${p.metodo_pagamento}</span></td>
+        <td class="td-fiscal">${p.chave_fiscal}</td>
+      </tr>
+    `).join('');
+
+    corpo.innerHTML = `
+      <table class="tabela-auditoria">
+        <thead>
+          <tr>
+            <th>Pedido</th>
+            <th>Cliente</th>
+            <th>Total</th>
+            <th>Método</th>
+            <th>Chave Fiscal</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  } catch {
+    corpo.innerHTML = '<div class="audit-loading" style="color:var(--accent)">Falha de conexão com o servidor.</div>';
+  }
+}
+
+// Carrinho
+function adicionarAoCarrinho(idProduto) {
+  const prod = produtos.find(p => p.id === idProduto);
+  if (!prod) return;
+  const idx = carrinho.findIndex(i => i.produto.id === idProduto);
+  if (idx >= 0) {
+    if (carrinho[idx].quantidade < prod.estoque) carrinho[idx].quantidade++;
+  } else {
+    carrinho.push({ produto: prod, quantidade: 1 });
+  }
+  atualizarBadgeCarrinho();
+}
+
+function alterarQtd(idProduto, delta) {
+  const idx = carrinho.findIndex(i => i.produto.id === idProduto);
+  if (idx < 0) return;
+  carrinho[idx].quantidade += delta;
+  if (carrinho[idx].quantidade <= 0) carrinho.splice(idx, 1);
+  atualizarBadgeCarrinho();
+  renderCarrinho();
+}
+
+function removerItem(idProduto) {
+  carrinho = carrinho.filter(i => i.produto.id !== idProduto);
+  atualizarBadgeCarrinho();
+  renderCarrinho();
+}
+
+function atualizarBadgeCarrinho() {
+  const total = carrinho.reduce((s, i) => s + i.quantidade, 0);
+  const badge = document.getElementById('cart-count');
+  badge.textContent = total;
+  badge.style.display = total > 0 ? 'flex' : 'none';
+}
+
+function calcularTotal() {
+  return carrinho.reduce((s, i) => s + i.produto.preco * i.quantidade, 0);
+}
+
+function renderCarrinho() {
+  const lista  = document.getElementById('lista-carrinho');
+  const vazio  = document.getElementById('carrinho-vazio');
+  const resumo = document.getElementById('resumo-carrinho-box');
+  limparMsg('msg-pedido');
+  document.getElementById('confirmacao-box').classList.remove('visivel');
+
+  if (!carrinho.length) {
+    lista.innerHTML = '';
+    vazio.style.display  = 'block';
+    resumo.style.display = 'none';
+    return;
+  }
+
+  vazio.style.display  = 'none';
+  resumo.style.display = 'block';
+
+  lista.innerHTML = carrinho.map(i => `
+    <div class="item-carrinho">
+      <div class="item-carrinho-info">
+        <div class="item-nome">${i.produto.nome}</div>
+        <div class="item-qtd-ctrl">
+          <button class="btn-qtd" onclick="alterarQtd(${i.produto.id},-1)">&#x2212;</button>
+          <span class="qtd-val">${i.quantidade}</span>
+          <button class="btn-qtd" onclick="alterarQtd(${i.produto.id},1)">&#x2B;</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <span class="item-preco">${fmt(i.produto.preco * i.quantidade)}</span>
+        <button class="btn-remover-item" onclick="removerItem(${i.produto.id})">&#x2715;</button>
+      </div>
+    </div>
+  `).join('');
+
+  const total = calcularTotal();
+  document.getElementById('subtotal-val').textContent = fmt(total);
+  document.getElementById('total-val').textContent    = fmt(total);
+}
+
+async function finalizarPedido() {
+  limparMsg('msg-pedido');
+  if (!sessao) { mostrarMsg('msg-pedido', 'Faça login para finalizar o pedido.', 'erro'); return; }
+  if (!carrinho.length) { mostrarMsg('msg-pedido', 'Carrinho vazio.', 'erro'); return; }
+  const metodo = document.getElementById('metodo-pagamento').value;
+  if (!metodo) { mostrarMsg('msg-pedido', 'Selecione um método de pagamento.', 'erro'); return; }
+
+  const payload = {
+    id_usuario:       sessao.id,
+    metodo_pagamento: metodo,
+    itens: carrinho.map(i => ({ id_produto: i.produto.id, quantidade: i.quantidade })),
+  };
+
+  try {
+    const res  = await fetch(`${API}/pedidos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) { mostrarMsg('msg-pedido', data.erro, 'erro'); return; }
+
+    const metodosMap = { pix: 'PIX', cartao: 'Cartão de Crédito', boleto: 'Boleto Bancário' };
+    const dataHora   = new Date().toLocaleString('pt-BR');
+
+    document.getElementById('confirmacao-texto').textContent =
+`Pedido Nº:       #${data.pedido_id}
+Cliente:         ${sessao.nome}
+Total:           ${fmt(data.total)}
+Método:          ${metodosMap[data.metodo_pagamento] ?? data.metodo_pagamento}
+Chave Fiscal:    ${data.chave_fiscal}
+Data / Hora:     ${dataHora}
+
+Obrigado por comprar na Xotech Ltda.`;
+
+    document.getElementById('confirmacao-box').classList.add('visivel');
+    carrinho = [];
+    atualizarBadgeCarrinho();
+    await carregarProdutos();
+  } catch {
+    mostrarMsg('msg-pedido', 'Falha de conexão com o servidor.', 'erro');
+  }
+}
+
+// Inicialização
+window.onload = () => {
+  atualizarNavbar();
+  carregarProdutos();
+};
+</script>
+</body>
+</html>
