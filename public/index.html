@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Xotech Ltda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/styles.css">
+
+</head>
+<body>
+<!--  
+ NAV BAR
+ -->
+<nav id="navbar">
+  <div class="nav-logo">Xo<span>Tech</span></div>
+  <div class="nav-actions">
+    <span id="sessao-label">Olá, Visitante</span>
+    <button class="btn-nav" id="btn-login-nav" onclick="abrirLogin()">Entrar</button>
+    <button class="btn-nav danger" id="btn-logout-nav" style="display:none" onclick="logout()">Sair</button>
+    <button class="btn-nav" id="btn-gerente-nav" style="display:none" onclick="abrirGerente()">Gerente</button>
+    <button class="btn-nav" id="btn-carrinho" onclick="abrirCarrinho()">
+      Carrinho
+      <span id="cart-count" style="display:none">0</span>
+    </button>
+  </div>
+</nav>
+
+<!--  
+     CATÁLOGO
+       -->
+<div id="main-content">
+  <section id="catalogo-section">
+    <h2>Catálogo de Eletrônicos</h2>
+    <div id="grid-produtos"></div>
+  </section>
+</div>
+
+<!--  
+     OVERLAY
+       -->
+<div class="overlay" id="overlay" onclick="fecharTudo()"></div>
+
+<!--  
+     PAINEL: LOGIN / REGISTRO
+       -->
+<aside class="painel-lateral" id="painel-login">
+  <div class="painel-header">
+    <h3 id="titulo-form-auth">Acesse sua conta</h3>
+    <button class="btn-fechar" onclick="fecharTudo()">&#x2715;</button>
+  </div>
+  <div class="painel-corpo">
+    <div id="form-login">
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="login-email" placeholder="seu@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="login-senha" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter') fazerLogin()" />
+      </div>
+      <button class="btn-primario" onclick="fazerLogin()">Entrar</button>
+      <div id="msg-login" class="msg-painel"></div>
+      <hr class="divisor" />
+      <span class="link-toggle" onclick="alternarFormAuth()">Não tem conta? Cadastre-se</span>
+    </div>
+    <div id="form-registro" style="display:none">
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" id="reg-nome" placeholder="Seu nome completo" />
+      </div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="reg-email" placeholder="seu@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="reg-senha" placeholder="••••••••" />
+      </div>
+      <button class="btn-primario" onclick="registrar()">Criar conta</button>
+      <div id="msg-registro" class="msg-painel"></div>
+      <hr class="divisor" />
+      <span class="link-toggle" onclick="alternarFormAuth()">Já tenho conta</span>
+    </div>
+  </div>
+</aside>
+
+<!--  
+     PAINEL: GERENTE (Criar produto + Auditoria RF02)
+       -->
+<aside class="painel-lateral" id="painel-gerente">
+  <div class="painel-header">
+    <h3>Painel do Gerente</h3>
+    <button class="btn-fechar" onclick="fecharTudo()">&#x2715;</button>
+  </div>
+  <div class="painel-corpo">
+    <div class="abas-gerente">
+      <button class="aba-btn ativa" id="aba-btn-novo"    onclick="trocarAba('novo')">Novo Produto</button>
+      <button class="aba-btn"       id="aba-btn-auditoria" onclick="trocarAba('auditoria')">Pedidos</button>
+    </div>
+
+    <!-- ABA: CRIAR PRODUTO -->
+    <div class="aba-conteudo ativa" id="aba-novo">
+      <div class="form-group">
+        <label>Nome do Produto</label>
+        <input type="text" id="novo-nome" placeholder="Ex.: Smartphone XYZ" />
+      </div>
+      <div class="form-group">
+        <label>Preco (R$)</label>
+        <input type="number" id="novo-preco" step="0.01" min="0" placeholder="0,00" />
+      </div>
+      <div class="form-group">
+        <label>Descricao</label>
+        <textarea id="novo-descricao" placeholder="Características do produto..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Estoque</label>
+        <input type="number" id="novo-estoque" min="0" placeholder="0" />
+      </div>
+      <div id="msg-novo" class="msg-painel"></div>
+      <button class="btn-primario" onclick="criarProduto()">Criar Novo Produto</button>
+    </div>
+
+    <!-- ABA: AUDITORIA -->
+    <div class="aba-conteudo" id="aba-auditoria">
+      <div style="display:flex;align-items:center;margin-bottom:14px;">
+        <span class="audit-header" style="margin-bottom:0">Histórico Geral de Pedidos</span>
+        <button class="btn-reload-audit" onclick="carregarAuditoria()">Atualizar</button>
+      </div>
+      <div id="audit-corpo">
+        <div class="audit-loading">Carregando pedidos...</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!--  
+     PAINEL: CARRINHO
+       -->
+<aside class="painel-lateral" id="painel-carrinho">
+  <div class="painel-header">
+    <h3>Meu Carrinho</h3>
+    <button class="btn-fechar" onclick="fecharTudo()">&#x2715;</button>
+  </div>
+  <div class="painel-corpo">
+    <div id="carrinho-vazio">Nenhum item adicionado.</div>
+    <div id="lista-carrinho"></div>
+    <div id="resumo-carrinho-box" style="display:none">
+      <div class="resumo-carrinho">
+        <div class="resumo-linha"><span>Subtotal</span><span id="subtotal-val">R$ 0,00</span></div>
+        <div class="resumo-total"><span>Total</span><span id="total-val">R$ 0,00</span></div>
+      </div>
+      <select class="select-pagamento" id="metodo-pagamento">
+        <option value="">Selecione o pagamento</option>
+        <option value="pix">PIX (5% de desconto)</option>
+        <option value="cartao">Cartão de Crédito</option>
+        <option value="boleto">Boleto Bancário</option>
+      </select>
+      <button class="btn-primario" onclick="finalizarPedido()" style="margin-top:12px">Finalizar Pedido</button>
+      <div id="msg-pedido" class="msg-painel"></div>
+      <div id="confirmacao-box" class="confirmacao-box">
+        <div class="conf-header">COMPRA CONFIRMADA</div>
+        <div id="confirmacao-texto"></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!--  
+     MODAL: CRIAR / EDITAR PRODUTO
+       -->
+<div id="modal-produto">
+  <div class="modal-box">
+    <div class="modal-titulo" id="modal-titulo-texto">Editar Produto</div>
+    <input type="hidden" id="edit-id" value="" />
+    <div class="form-group">
+      <label>Nome do Produto</label>
+      <input type="text" id="edit-nome" />
+    </div>
+    <div class="form-group">
+      <label>Preco (R$)</label>
+      <input type="number" id="edit-preco" step="0.01" min="0" />
+    </div>
+    <div class="form-group">
+      <label>Descricao</label>
+      <textarea id="edit-descricao"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Estoque</label>
+      <input type="number" id="edit-estoque" min="0" />
+    </div>
+    <div id="msg-editar" class="msg-painel"></div>
+    <div class="modal-acoes">
+      <button class="btn-secundario" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-primario" style="flex:1" onclick="salvarEdicao()">Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js" defer></script>
+</body>
+</html>
