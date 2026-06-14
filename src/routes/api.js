@@ -3,60 +3,12 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 
-
 // Importações necessárias para as rotas funcionarem
 const db = require('../config/database');
 const { verificarAdmin } = require('../middlewares/authMiddleware');
 const pedidoSubject = require('../services/faturamentoService');
 
-//  POST /registrar - Cadastro de novo cliente comum
-router.post('/registrar', async (req, res) => {
-  const { nome, email, senha } = req.body;
-  if (!nome || !email || !senha) {
-    return res.status(400).json({ erro: 'Campos obrigatórios: nome, email, senha.' });
-  }
-  try {
-    const [rows] = await db.execute('SELECT id FROM usuarios WHERE email = ?', [email]);
-    if (rows.length > 0) {
-      return res.status(409).json({ erro: 'E-mail já cadastrado.' });
-    }
-    const [result] = await db.execute(
-      'INSERT INTO usuarios (nome, email, senha, role) VALUES (?, ?, ?, ?)',
-      [nome, email, senha, 'cliente']
-    );
-    return res.status(201).json({ mensagem: 'Conta criada com sucesso.', id: result.insertId });
-  } catch (err) {
-    console.error('[REGISTRAR]', err.message);
-    return res.status(500).json({ erro: 'Erro interno ao registrar usuário.' });
-  }
-});
-
-//  POST /login - Autenticação plaintext; retorna id, nome e role
-
-router.post('/login', async (req, res) => {
-  const { email, senha } = req.body;
-  if (!email || !senha) {
-    return res.status(400).json({ erro: 'Campos obrigatórios: email, senha.' });
-  }
-  try {
-    // Busca pelo e-mail e compara a senha em plaintext diretamente no SQL
-    const [rows] = await db.execute(
-      'SELECT id, nome, role FROM usuarios WHERE email = ? AND BINARY senha = ?',
-      [email, String(senha)]
-    );
-    if (rows.length === 0) {
-      return res.status(401).json({ erro: 'Credenciais inválidas.' });
-    }
-    const { id, nome, role } = rows[0];
-    return res.status(200).json({ id, nome, role });
-  } catch (err) {
-    console.error('[LOGIN]', err.message);
-    return res.status(500).json({ erro: 'Erro interno ao autenticar.' });
-  }
-});
-
 //  GET /produtos - Catálogo completo (público)
-
 router.get('/produtos', async (_req, res) => {
   try {
     const [rows] = await db.execute('SELECT * FROM produtos ORDER BY id ASC');
@@ -67,75 +19,7 @@ router.get('/produtos', async (_req, res) => {
   }
 });
 
-//  POST /produtos - Criação de produto (somente admin)
-
-router.post('/produtos', async (req, res) => {
-  const { nome, preco, descricao, estoque, id_usuario } = req.body;
-  try {
-    const bloqueio = await verificarAdmin(id_usuario);
-    if (bloqueio) return res.status(bloqueio.status).json({ erro: bloqueio.erro });
-
-    if (!nome || preco === undefined || estoque === undefined) {
-      return res.status(400).json({ erro: 'Campos obrigatórios: nome, preco, estoque.' });
-    }
-    const [result] = await db.execute(
-      'INSERT INTO produtos (nome, preco, descricao, estoque) VALUES (?, ?, ?, ?)',
-      [nome, preco, descricao ?? '', estoque]
-    );
-    const [created] = await db.execute('SELECT * FROM produtos WHERE id = ?', [result.insertId]);
-    return res.status(201).json({ mensagem: 'Produto criado com sucesso.', produto: created[0] });
-  } catch (err) {
-    console.error('[PRODUTOS POST]', err.message);
-    return res.status(500).json({ erro: 'Erro ao criar produto.' });
-  }
-});
-
-//  PUT /produtos/:id - Edição de produto (somente admin)
-
-router.put('/produtos/:id', async (req, res) => {
-  const { id } = req.params;
-  const { nome, preco, descricao, estoque, id_usuario } = req.body;
-  try {
-    const bloqueio = await verificarAdmin(id_usuario);
-    if (bloqueio) return res.status(bloqueio.status).json({ erro: bloqueio.erro });
-
-    const [result] = await db.execute(
-      'UPDATE produtos SET nome = ?, preco = ?, descricao = ?, estoque = ? WHERE id = ?',
-      [nome, preco, descricao, estoque, id]
-    );
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ erro: 'Produto não encontrado.' });
-    }
-    const [updated] = await db.execute('SELECT * FROM produtos WHERE id = ?', [id]);
-    return res.status(200).json({ mensagem: 'Produto atualizado com sucesso.', produto: updated[0] });
-  } catch (err) {
-    console.error('[PRODUTOS PUT]', err.message);
-    return res.status(500).json({ erro: 'Erro ao atualizar produto.' });
-  }
-});
-
-//  DELETE /produtos/:id - Remoção de produto (somente admin)
-
-router.delete('/produtos/:id', async (req, res) => {
-  const { id } = req.params;
-  const { id_usuario } = req.body;
-  try {
-    const bloqueio = await verificarAdmin(id_usuario);
-    if (bloqueio) return res.status(bloqueio.status).json({ erro: bloqueio.erro });
-
-    const [result] = await db.execute('DELETE FROM produtos WHERE id = ?', [id]);
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ erro: 'Produto não encontrado.' });
-    }
-    return res.status(200).json({ mensagem: 'Produto removido com sucesso.' });
-  } catch (err) {
-    console.error('[PRODUTOS DELETE]', err.message);
-    return res.status(500).json({ erro: 'Erro ao remover produto.' });
-  }
-});
-
 //  GET /pedidos - Auditoria de pedidos (somente admin) [RF02]
-
 router.get('/pedidos', async (req, res) => {
   const id_usuario = req.query.id_usuario;
   try {
@@ -161,8 +45,52 @@ router.get('/pedidos', async (req, res) => {
   }
 });
 
-//  POST /pedidos - Checkout com validação de estoque
+//  POST /login - Autenticação plaintext; retorna id, nome e role
+router.post('/login', async (req, res) => {
+  const { email, senha } = req.body;
+  if (!email || !senha) {
+    return res.status(400).json({ erro: 'Campos obrigatórios: email, senha.' });
+  }
+  try {
+    // Busca pelo e-mail e compara a senha em plaintext diretamente no SQL
+    const [rows] = await db.execute(
+      'SELECT id, nome, role FROM usuarios WHERE email = ? AND BINARY senha = ?',
+      [email, String(senha)]
+    );
+    if (rows.length === 0) {
+      return res.status(401).json({ erro: 'Credenciais inválidas.' });
+    }
+    const { id, nome, role } = rows[0];
+    return res.status(200).json({ id, nome, role });
+  } catch (err) {
+    console.error('[LOGIN]', err.message);
+    return res.status(500).json({ erro: 'Erro interno ao autenticar.' });
+  }
+});
 
+//  POST /registrar - Cadastro de novo cliente comum
+router.post('/registrar', async (req, res) => {
+  const { nome, email, senha } = req.body;
+  if (!nome || !email || !senha) {
+    return res.status(400).json({ erro: 'Campos obrigatórios: nome, email, senha.' });
+  }
+  try {
+    const [rows] = await db.execute('SELECT id FROM usuarios WHERE email = ?', [email]);
+    if (rows.length > 0) {
+      return res.status(409).json({ erro: 'E-mail já cadastrado.' });
+    }
+    const [result] = await db.execute(
+      'INSERT INTO usuarios (nome, email, senha, role) VALUES (?, ?, ?, ?)',
+      [nome, email, senha, 'cliente']
+    );
+    return res.status(201).json({ mensagem: 'Conta criada com sucesso.', id: result.insertId });
+  } catch (err) {
+    console.error('[REGISTRAR]', err.message);
+    return res.status(500).json({ erro: 'Erro interno ao registrar usuário.' });
+  }
+});
+
+//  POST /pedidos - Checkout com validação de estoque
 router.post('/pedidos', async (req, res) => {
   const { id_usuario, itens, metodo_pagamento } = req.body;
 
@@ -236,6 +164,70 @@ router.post('/pedidos', async (req, res) => {
     return res.status(422).json({ erro: err.message });
   } finally {
     conn.release();
+  }
+});
+
+//  POST /produtos - Criação de produto (somente admin)
+router.post('/produtos', async (req, res) => {
+  const { nome, preco, descricao, estoque, id_usuario } = req.body;
+  try {
+    const bloqueio = await verificarAdmin(id_usuario);
+    if (bloqueio) return res.status(bloqueio.status).json({ erro: bloqueio.erro });
+
+    if (!nome || preco === undefined || estoque === undefined) {
+      return res.status(400).json({ erro: 'Campos obrigatórios: nome, preco, estoque.' });
+    }
+    const [result] = await db.execute(
+      'INSERT INTO produtos (nome, preco, descricao, estoque) VALUES (?, ?, ?, ?)',
+      [nome, preco, descricao ?? '', estoque]
+    );
+    const [created] = await db.execute('SELECT * FROM produtos WHERE id = ?', [result.insertId]);
+    return res.status(201).json({ mensagem: 'Produto criado com sucesso.', produto: created[0] });
+  } catch (err) {
+    console.error('[PRODUTOS POST]', err.message);
+    return res.status(500).json({ erro: 'Erro ao criar produto.' });
+  }
+});
+
+//  PUT /produtos/:id - Edição de produto (somente admin)
+router.put('/produtos/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nome, preco, descricao, estoque, id_usuario } = req.body;
+  try {
+    const bloqueio = await verificarAdmin(id_usuario);
+    if (bloqueio) return res.status(bloqueio.status).json({ erro: bloqueio.erro });
+
+    const [result] = await db.execute(
+      'UPDATE produtos SET nome = ?, preco = ?, descricao = ?, estoque = ? WHERE id = ?',
+      [nome, preco, descricao, estoque, id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ erro: 'Produto não encontrado.' });
+    }
+    const [updated] = await db.execute('SELECT * FROM produtos WHERE id = ?', [id]);
+    return res.status(200).json({ mensagem: 'Produto atualizado com sucesso.', produto: updated[0] });
+  } catch (err) {
+    console.error('[PRODUTOS PUT]', err.message);
+    return res.status(500).json({ erro: 'Erro ao atualizar produto.' });
+  }
+});
+
+//  DELETE /produtos/:id - Remoção de produto (somente admin)
+router.delete('/produtos/:id', async (req, res) => {
+  const { id } = req.params;
+  const { id_usuario } = req.body;
+  try {
+    const bloqueio = await verificarAdmin(id_usuario);
+    if (bloqueio) return res.status(bloqueio.status).json({ erro: bloqueio.erro });
+
+    const [result] = await db.execute('DELETE FROM produtos WHERE id = ?', [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ erro: 'Produto não encontrado.' });
+    }
+    return res.status(200).json({ mensagem: 'Produto removido com sucesso.' });
+  } catch (err) {
+    console.error('[PRODUTOS DELETE]', err.message);
+    return res.status(500).json({ erro: 'Erro ao remover produto.' });
   }
 });
 
