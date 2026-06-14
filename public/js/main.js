@@ -20,7 +20,7 @@ function limparMsg(id) {
   el.textContent = '';
 }
 
-// ── Painéis / Overlays ───────────────────────────────────────
+// Painéis / Overlays
 function abrirPainel(id) {
   document.getElementById('overlay').classList.add('ativo');
   document.getElementById(id).classList.add('ativo');
