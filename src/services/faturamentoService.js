@@ -55,3 +55,5 @@ class FinanceiroObserver {
 const pedidoSubject = new PedidoSubject();
 pedidoSubject.subscribe(new FaturamentoFiscalObserver());
 pedidoSubject.subscribe(new FinanceiroObserver());
+// Precisa ser a instância em letras minúsculas (a que recebeu os subscribes)
+module.exports = pedidoSubject;
